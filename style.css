@@ -1,0 +1,31 @@
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans+Mono);
+
+body {
+  background: #121613;
+  color: #ababab;
+  font-family: "Droid Sans Mono", monospace;
+  margin: 0;
+}
+
+pre {
+  font-family: inherit;
+  font-size: 30px;
+  margin: 0;
+}
+
+#container {
+  text-align: center;
+}
+
+#grid-div {
+  border: 10px solid white;
+  width: 500px;
+  height: 500px;
+  overflow: hidden;
+  margin: 50px auto;
+}
+
+#inner-grid-div {
+  position: relative;
+  transition: 0.2s linear;
+}
