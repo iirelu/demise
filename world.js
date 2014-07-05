@@ -73,7 +73,8 @@ var World = (function() {
 
     var benchmarkStart = new Date().getTime();
 
-    grid.empty();
+    var newGrid = document.createElement("pre");
+    newGrid.id = "grid";
 
     for(var y = 0; y < 17; y++) {
       for(var x = 0; x < 31; x++) {
@@ -83,18 +84,24 @@ var World = (function() {
         var curTile = getTile(gridX, gridY);
         var curType = type(curTile);
 
+        var newElem = document.createElement("span");
+        newElem.classList.add("type-" + curType.type);
         if(x == 16 && y == 9) {
-          grid.append("<span class=\"type-" + curType.type + " player\">" +
-                         world.player.style.character + "</span>");
+          newElem.classList.add("player");
+          newElem.textContent = world.player.style.character;
         } else {
-          grid.append("<span class=\"type-" + curType.type + "\">" +
-                         curType.character + "</span>");
+          newElem.textContent = curType.character;
         }
+        newGrid.appendChild(newElem);
       }
 
-      grid.append("<br />");
+      newGrid.appendChild(document.createElement("br"));
     }
 
+    document.getElementById("inner-grid-div").replaceChild(
+        newGrid,
+        document.getElementById("grid"));
+    grid = document.getElementById("grid");
     playerElem = $(".player");
     hasChanged = false;
 
