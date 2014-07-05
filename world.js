@@ -71,22 +71,22 @@ var World = (function() {
       return;
     }
 
-    var benchmarkStart = new Date().getTime();
-
+    // we wont be using any zepto.js $()s in here because they are
+    // incredibly slow when doing this much DOM manipulation
     var newGrid = document.createElement("pre");
     newGrid.id = "grid";
 
     for(var y = 0; y < 17; y++) {
       for(var x = 0; x < 31; x++) {
-        var gridX = x + world.player.x - 16;
-        var gridY = y + world.player.y - 9;
+        var gridX = x + world.player.x - 15;
+        var gridY = y + world.player.y - 8;
 
         var curTile = getTile(gridX, gridY);
         var curType = type(curTile);
 
         var newElem = document.createElement("span");
         newElem.classList.add("type-" + curType.type);
-        if(x == 16 && y == 9) {
+        if(x == 15 && y == 8) {
           newElem.classList.add("player");
           newElem.textContent = world.player.style.character;
         } else {
@@ -104,8 +104,6 @@ var World = (function() {
     grid = document.getElementById("grid");
     playerElem = $(".player");
     hasChanged = false;
-
-    console.log(new Date().getTime() - benchmarkStart);
   }
 
   // update the styles of types in $("#type-styles")

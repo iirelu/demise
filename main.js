@@ -14,7 +14,9 @@ function render() {
 
   player = World.getPlayerElem().position();
   if(player !== undefined) {
-    View.setPos(-241 + player.left, -232 + player.top);
+    $("#inner-grid-div").css("transform", "translate(" +
+        (241 - player.left) + "px," +
+        (232 - player.top) + "px)");
   }
 
   requestAnimationFrame(render);
@@ -30,26 +32,7 @@ Mousetrap.bind(["w", "a", "s", "d"], function(e, key) {
     if(key === "d") World.movePlayer(1, 0);
   }
 }, "keydown");
+
 Mousetrap.bind(["w", "a", "s", "d"], function(e, key) {
   keycheck[key] = false;
 }, "keyup");
-
-View = (function() {
-  var mover = $("#inner-grid-div");
-  var x = 0;
-  var y = 0;
-
-  function update() {
-    mover.css("transform", "translate(" + (-x) + "px," + (-y) + "px)");
-  }
-
-  function setPos(newX, newY) {
-    x = newX;
-    y = newY;
-    update();
-  }
-
-  return {
-    setPos: setPos
-  };
-}());
