@@ -1,6 +1,8 @@
-World = (function() {
+var World = (function() {
   var world = {
+    size: {x: 0, y: 0},
     grid: [],
+    player: {},
     ids: {}
   };
   var hasChanged = false;
@@ -9,7 +11,12 @@ World = (function() {
   var playerElem = null;
 
   function getTile(x, y) {
-    if(world.grid[y] === undefined || world.grid[y][x] === undefined) {
+    if(
+      x < 0 || y < 0 ||
+      x >= world.size.x || y >= world.size.y ||
+      world.grid[y] === undefined ||
+      world.grid[y][x] === undefined
+    ) {
       return "default";
     } else {
       return world.grid[y][x];
@@ -38,7 +45,7 @@ World = (function() {
   }
 
   function getPlayer() {
-    return {x: world.player.x, y: world.player.y}
+    return {x: world.player.x, y: world.player.y};
   }
 
   function getPlayerElem() {
@@ -63,6 +70,9 @@ World = (function() {
     if(hasChanged === false) {
       return;
     }
+
+    var benchmarkStart = new Date().getTime();
+
     var newGrid = "";
 
     for(var y = 0; y < 17; y++) {
@@ -88,13 +98,15 @@ World = (function() {
     grid.html(newGrid);
     playerElem = $(".player");
     hasChanged = false;
+
+    console.log(new Date().getTime() - benchmarkStart);
   }
 
   // update the styles of types in $("#type-styles")
   function updateStyles() {
     var newCSS = "";
 
-    newCSS += ".player{color:" + world.player.style.color + " !important;}"
+    newCSS += ".player{color:" + world.player.style.color + " !important;}";
 
     _.map(world.ids, function(id) {
       newCSS += ".type-" + id.type + "{background:" + id.background +
@@ -111,5 +123,5 @@ World = (function() {
     movePlayer: movePlayer,
     getPlayer: getPlayer,
     getPlayerElem: getPlayerElem
-  }
+  };
 }());

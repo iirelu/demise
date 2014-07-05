@@ -51,5 +51,5 @@ View = (function() {
 
   return {
     setPos: setPos
-  }
+  };
 }());
