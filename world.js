@@ -73,7 +73,7 @@ var World = (function() {
 
     var benchmarkStart = new Date().getTime();
 
-    var newGrid = $("<pre id=grid>");
+    grid.empty();
 
     for(var y = 0; y < 17; y++) {
       for(var x = 0; x < 31; x++) {
@@ -84,18 +84,17 @@ var World = (function() {
         var curType = type(curTile);
 
         if(x == 16 && y == 9) {
-          newGrid.append("<span class=\"type-" + curType.type + " player\">" +
+          grid.append("<span class=\"type-" + curType.type + " player\">" +
                          world.player.style.character + "</span>");
         } else {
-          newGrid.append("<span class=\"type-" + curType.type + "\">" +
+          grid.append("<span class=\"type-" + curType.type + "\">" +
                          curType.character + "</span>");
         }
       }
 
-      newGrid.append("<br />");
+      grid.append("<br />");
     }
 
-    $("#grid").replaceWith(newGrid);
     playerElem = $(".player");
     hasChanged = false;
 
