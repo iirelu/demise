@@ -22,17 +22,10 @@ function render() {
   requestAnimationFrame(render);
 }
 
-var keycheck = {w: false, a: false, s: false, d: false};
 Mousetrap.bind(["w", "a", "s", "d"], function(e, key) {
-  if(keycheck[key] === false) {
-    //keycheck[key] = true;
-    if(key === "w") World.movePlayer(0, -1);
-    if(key === "a") World.movePlayer(-1, 0);
-    if(key === "s") World.movePlayer(0, 1);
-    if(key === "d") World.movePlayer(1, 0);
-  }
-}, "keydown");
+  if(key === "w") World.movePlayer(0, -1);
+  if(key === "a") World.movePlayer(-1, 0);
+  if(key === "s") World.movePlayer(0, 1);
+  if(key === "d") World.movePlayer(1, 0);
+});
 
-Mousetrap.bind(["w", "a", "s", "d"], function(e, key) {
-  keycheck[key] = false;
-}, "keyup");
