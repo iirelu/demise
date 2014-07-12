@@ -24,7 +24,7 @@ var World = (function() {
   }
 
   function type(tile) {
-    if(world.ids[tile] !== undefined) {
+    if(_.has(world.ids, tile)) {
       return world.ids[tile];
     } else {
       return world.ids["default"];
