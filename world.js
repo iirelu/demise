@@ -158,7 +158,6 @@ var World = (function() {
 
         var curTile = getTile(gridX, gridY);
         var curType = type(curTile);
-        console.log("um, so, current tile and type: ", curTile, curType);
 
         var newElem = document.createElement("span");
         newElem.classList.add("type-" + curType.name);
