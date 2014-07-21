@@ -2,7 +2,15 @@ var World = (function() {
   var world = {
     size: {x: 0, y: 0},
     grid: [],
-    player: {},
+    player: {
+      x: 0,
+      y: 0,
+      name: "",
+      style: {
+        character: "",
+        color: ""
+      }
+    },
     ids: {}
   };
   var hasChanged = false;
@@ -55,13 +63,33 @@ var World = (function() {
 
   // get new world data
   function parseWorld(data) {
-    if(!data.size || !data.grid || !data.player || !data.ids) {
-      throw new Error("bad data, yo");
+    // easy stuff first
+    if(
+      // check world size
+      _.isObject(data.size) &&
+      _.isNumber(data.size.x) && data.size.x > 0 &&
+      _.isNumber(data.size.y) && data.size.y > 0 &&
+      // check player
+      _.isObject(data.player) &&
+      _.isNumber(data.player.x) &&
+      _.isNumber(data.player.y) &&
+      _.isString(data.player.name) &&
+      _.isObject(data.player.style) &&
+      _.isString(data.player.style.character) &&
+      _.isString(data.player.style.color)
+    ) {
+      world.size.x = data.size.x;
+      world.size.y = data.size.y;
+      world.player.x = data.player.x;
+      world.player.y = data.player.y;
+      world.player.name = data.player.name;
+      world.player.style.character = data.player.style.character;
+      world.player.style.color = data.player.style.color;
+
+      console.log("well THAT bit worked");
+    } else {
+      throw new Error("Bad world data.");
     }
-    world.size = data.size;
-    world.grid = data.grid;
-    world.player = data.player;
-    world.ids = data.ids;
     hasChanged = true;
   }
 
