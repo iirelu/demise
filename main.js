@@ -1,5 +1,5 @@
 $.getJSON("world.json", function(data, status) {
-  console.log(status, data);
+  console.log(status);
   if(status !== "success") {
     throw new Error("carooooool heeeeelp");
   }

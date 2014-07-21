@@ -19,10 +19,10 @@ var World = (function() {
   var playerElem = null;
   var templates = {
     css: _.template(
-      ".type-<%= id.type %> { background: <%= id.background %>; " +
+      ".type-<%= id.name %> { background: <%= id.background %>; " +
       "color: <%= id.color %>; }\n" +
 
-      ".type-<%= id.type %>:after { content: \"<%= id.character %>\" }\n"
+      ".type-<%= id.name %>:after { content: \"<%= id.character %>\" }\n"
     ),
     player: _.template(
       "#player { color: <%= player.style.color %>; }\n" +
@@ -31,15 +31,16 @@ var World = (function() {
   };
 
   function getTile(x, y) {
+    // erm so this SHOULD be in 3d but for now im hard-coding z as 0
     if(
       x < 0 || y < 0 ||
       x >= world.size.x || y >= world.size.y ||
-      world.grid[y] === undefined ||
-      world.grid[y][x] === undefined
+      world.grid[0][y] === undefined ||
+      world.grid[0][y][x] === undefined
     ) {
       return "default";
     } else {
-      return world.grid[y][x];
+      return world.grid[0][y][x];
     }
   }
 
@@ -90,18 +91,52 @@ var World = (function() {
       _.isString(data.player.style.character) &&
       _.isString(data.player.style.color)
     ) {
-      world.size.x = data.size.x;
-      world.size.y = data.size.y;
-      world.player.x = data.player.x;
-      world.player.y = data.player.y;
-      world.player.name = data.player.name;
-      world.player.style.character = data.player.style.character;
-      world.player.style.color = data.player.style.color;
+      world.size = data.size;
+      world.player = data.player;
 
-      console.log("well THAT bit worked");
+      _.map(data.ids, function(idData, idName) {
+        if(
+          _.isString(idData.name) &&
+          _.isString(idData.background) &&
+          _.isString(idData.color) &&
+          _.isString(idData.character) &&
+          _.isBoolean(idData.walkable)
+        ) {
+          world.ids[idName] = idData;
+        } else {
+          console.log(idData);
+          throw new Error("motherFUCKER");
+        }
+      });
+
+      world.grid = [];
+
+      _.map(data.grid, function(level, z) {
+
+        if(_.isArray(level)) {
+          world.grid[z] = _.map(level, function(row) {
+
+            if(_.isString(row)) {
+              return _.flatten(row);
+            } else if(_.isArray(row)) {
+              // ah fuck it this is complicated and i dont need it yet
+              throw new Error("im a lazy shit");
+            } else {
+              throw new Error("Bad world grid data.");
+            }
+
+          });
+        } else {
+          throw new Error("Bad world grid data.");
+        }
+
+      });
+
+      console.log(world);
     } else {
-      throw new Error("Bad world data.");
+      throw new Error("Bad world size/player data.");
     }
+
     hasChanged = true;
   }
 
@@ -123,9 +158,10 @@ var World = (function() {
 
         var curTile = getTile(gridX, gridY);
         var curType = type(curTile);
+        console.log("um, so, current tile and type: ", curTile, curType);
 
         var newElem = document.createElement("span");
-        newElem.classList.add("type-" + curType.type);
+        newElem.classList.add("type-" + curType.name);
         if(x == 15 && y == 8) {
           newElem.id = "player";
         }

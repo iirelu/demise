@@ -23,35 +23,35 @@
   },
   "ids": {
     "default": {
-      "type": "default",
+      "name": "default",
       "background": "transparent",
       "color": "rgba(255, 55, 55, 0.5)",
       "character": "~",
       "walkable": true
     },
     "0": {
-      "type": "void",
+      "name": "void",
       "background": "rgb(16, 16, 19)",
       "color": "transparent",
       "character": " ",
       "walkable": false
     },
     "1": {
-      "type": "wall",
+      "name": "wall",
       "background": "rgba(0, 0, 0, 0.16)",
       "color": "inherit",
       "character": "#",
       "walkable": false
     },
     "2": {
-      "type": "floor",
+      "name": "floor",
       "background": "#494949",
       "color": "transparent",
       "character": " ",
       "walkable": true
     },
     "3": {
-      "type": "door",
+      "name": "door",
       "background": "#50392a",
       "color": "transparent",
       "character": " ",
