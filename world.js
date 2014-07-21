@@ -80,7 +80,7 @@ var World = (function() {
   // render the world into $("#grid")
   function renderGrid() {
     if(hasChanged === false) {
-      return;
+      return false;
     }
 
     // we wont be using any zepto.js $()s in here because they are
@@ -113,6 +113,8 @@ var World = (function() {
     grid = document.getElementById("grid");
     playerElem = $("#player");
     hasChanged = false;
+
+    return true;
   }
 
   // update the styles of types in $("#type-styles")

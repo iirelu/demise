@@ -10,13 +10,14 @@ $.getJSON("world.json", function(data, status) {
 });
 
 function render() {
-  World.renderGrid();
 
-  player = World.getPlayerElem().position();
-  if(player !== undefined) {
-    $("#inner-grid-div").css("transform", "translate(" +
-        (241 - player.left) + "px," +
-        (232 - player.top) + "px)");
+  if(World.renderGrid() === true) {
+    player = World.getPlayerElem().position();
+    if(player !== undefined) {
+      $("#inner-grid-div").css("transform", "translate(" +
+          (241 - player.left) + "px," +
+          (232 - player.top) + "px)");
+    }
   }
 
   requestAnimationFrame(render);
