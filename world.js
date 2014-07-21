@@ -17,6 +17,18 @@ var World = (function() {
   var typeStyles = $("#type-styles");
   var grid = $("#grid");
   var playerElem = null;
+  var templates = {
+    css: _.template(
+      ".type-<%= id.type %> { background: <%= id.background %>; " +
+      "color: <%= id.color %>; }\n" +
+
+      ".type-<%= id.type %>:after { content: \"<%= id.character %>\" }\n"
+    ),
+    player: _.template(
+      "#player { color: <%= player.style.color %>; }\n" +
+      "#player:after { content: \"<%= player.style.character %>\"; }\n"
+    )
+  };
 
   function getTile(x, y) {
     if(
@@ -32,7 +44,7 @@ var World = (function() {
   }
 
   function type(tile) {
-    if(world.ids[tile] !== undefined) {
+    if(_.has(world.ids, tile)) {
       return world.ids[tile];
     } else {
       return world.ids["default"];
@@ -96,7 +108,7 @@ var World = (function() {
   // render the world into $("#grid")
   function renderGrid() {
     if(hasChanged === false) {
-      return;
+      return false;
     }
 
     // we wont be using any zepto.js $()s in here because they are
@@ -115,10 +127,7 @@ var World = (function() {
         var newElem = document.createElement("span");
         newElem.classList.add("type-" + curType.type);
         if(x == 15 && y == 8) {
-          newElem.classList.add("player");
-          newElem.textContent = world.player.style.character;
-        } else {
-          newElem.textContent = curType.character;
+          newElem.id = "player";
         }
         newGrid.appendChild(newElem);
       }
@@ -130,19 +139,20 @@ var World = (function() {
         newGrid,
         document.getElementById("grid"));
     grid = document.getElementById("grid");
-    playerElem = $(".player");
+    playerElem = $("#player");
     hasChanged = false;
+
+    return true;
   }
 
   // update the styles of types in $("#type-styles")
   function updateStyles() {
     var newCSS = "";
 
-    newCSS += ".player{color:" + world.player.style.color + " !important;}";
+    newCSS += templates.player({ player: world.player });
 
     _.map(world.ids, function(id) {
-      newCSS += ".type-" + id.type + "{background:" + id.background +
-                ";color:" + id.color + ";}\n";
+      newCSS += templates.css({ id: id });
     });
 
     typeStyles.text(newCSS);
