@@ -1,3 +1,5 @@
+/*exported World*/
+
 var World = (function() {
   var world = {
     size: {x: 0, y: 0},

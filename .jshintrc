@@ -1,3 +1,14 @@
 {
-  "indent": 2
+  "indent": 2,
+  "curly": true,
+  "immed": true,
+  "quotmark": "double",
+
+  "undef": true,
+  "unused": true,
+
+  "browser": true,
+  "devel": true,
+  "jquery": true,
+  "predef": ["_"]
 }
