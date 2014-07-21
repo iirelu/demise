@@ -10,5 +10,5 @@
   "browser": true,
   "devel": true,
   "jquery": true,
-  "predef": ["_"]
+  "predef": ["_", "Mousetrap"]
 }

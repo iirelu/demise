@@ -8,7 +8,7 @@ $.getJSON("world.json", function(data, status) {
 
   World.parseWorld(data);
   World.updateStyles();
-  requestAnimationFrame(render);
+  window.requestAnimationFrame(render);
 });
 
 function render() {
@@ -22,7 +22,7 @@ function render() {
     }
   }
 
-  requestAnimationFrame(render);
+  window.requestAnimationFrame(render);
 }
 
 Mousetrap.bind(["w", "a", "s", "d"], function(e, key) {
