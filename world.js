@@ -32,17 +32,25 @@ var World = (function() {
     )
   };
 
-  function getTile(x, y) {
-    // erm so this SHOULD be in 3d but for now im hard-coding z as 0
+  function getTile(x, y, z) {
     if(
-      x < 0 || y < 0 ||
-      x >= world.size.x || y >= world.size.y ||
-      world.grid[0][y] === undefined ||
-      world.grid[0][y][x] === undefined
+      _.isNumber(x) &&
+      _.isNumber(y) &&
+      _.isNumber(z)
     ) {
-      return "default";
+      if(
+        x < 0 || y < 0 || z < 0 ||
+        x >= world.size.x || y >= world.size.y ||
+        world.grid[z] === undefined ||
+        world.grid[z][y] === undefined ||
+        world.grid[z][y][x] === undefined
+      ) {
+        return "default";
+      } else {
+        return world.grid[z][y][x];
+      }
     } else {
-      return world.grid[0][y][x];
+      throw new Error("Bad coordinates sent to getTile()");
     }
   }
 
@@ -57,13 +65,25 @@ var World = (function() {
   function movePlayer(deltaX, deltaY) {
     var newX = world.player.x + deltaX;
     var newY = world.player.y + deltaY;
+    var newZ = 0; // it aint 0, but lets pretend it is for now
     if(
       // make sure the tile we're moving to is walkable
-      type(getTile(newX, newY)).walkable === true
+      type(getTile(newX, newY, newZ)).walkable === true
     ) {
       world.player.x += deltaX;
       world.player.y += deltaY;
       hasChanged = true;
+    }
+  }
+  function setPlayerPosition(x, y, z) {
+    if(
+      _.isNumber(x) &&
+      _.isNumber(y) &&
+      _.isNumber(z)
+    ) {
+      world.player.x = x;
+      world.player.y = y;
+      world.player.z = z;
     }
   }
 
@@ -93,8 +113,16 @@ var World = (function() {
       _.isString(data.player.style.character) &&
       _.isString(data.player.style.color)
     ) {
-      world.size = data.size;
-      world.player = data.player;
+      world.size.x = data.size.x;
+      world.size.y = data.size.y;
+      world.size.z = data.size.z;
+
+      world.player.x = data.player.x;
+      world.player.y = data.player.y;
+      world.player.z = data.player.z;
+      world.player.name = data.player.name;
+      world.player.style.color = data.player.style.color;
+      world.player.style.character = data.player.style.character;
 
       _.map(data.ids, function(idData, idName) {
         if(
@@ -114,20 +142,27 @@ var World = (function() {
       world.grid = [];
 
       _.map(data.grid, function(level, z) {
+        if(_.isArray(level) && z < world.size.z) {
 
-        if(_.isArray(level)) {
-          world.grid[z] = _.map(level, function(row) {
+          world.grid[z] = _.map(level, function(row, y) {
+            if(y < world.size.y) {
+              if(_.isString(row)) {
 
-            if(_.isString(row)) {
-              return _.flatten(row);
-            } else if(_.isArray(row)) {
-              // ah fuck it this is complicated and i dont need it yet
-              throw new Error("im a lazy shit");
-            } else {
-              throw new Error("Bad world grid data.");
+                return _.map(row, function(column, x) {
+                  if(x < world.size.x) {
+                    return column;
+                  }
+                });
+
+              } else if(_.isArray(row)) {
+                // ah fuck it this is complicated and i dont need it yet
+                throw new Error("im a lazy shit");
+              } else {
+                throw new Error("Bad world grid data.");
+              }
             }
-
           });
+
         } else {
           throw new Error("Bad world grid data.");
         }
@@ -157,8 +192,9 @@ var World = (function() {
       for(var x = 0; x < 31; x++) {
         var gridX = x + world.player.x - 15;
         var gridY = y + world.player.y - 8;
+        var gridZ = world.player.z;
 
-        var curTile = getTile(gridX, gridY);
+        var curTile = getTile(gridX, gridY, gridZ);
         var curType = type(curTile);
 
         var newElem = document.createElement("span");
@@ -200,7 +236,10 @@ var World = (function() {
     renderGrid: renderGrid,
     parseWorld: parseWorld,
     movePlayer: movePlayer,
+    setPlayerPosition: setPlayerPosition,
     getPlayer: getPlayer,
-    getPlayerElem: getPlayerElem
+    getPlayerElem: getPlayerElem,
+
+    world: world
   };
 }());
