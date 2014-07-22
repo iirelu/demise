@@ -62,19 +62,43 @@ var World = (function() {
     }
   }
 
+  function isSolid(x, y, z) {
+    return type(getTile(x, y, z)).solid;
+  }
+
   function movePlayer(deltaX, deltaY) {
-    var newX = world.player.x + deltaX;
-    var newY = world.player.y + deltaY;
-    var newZ = 0; // it aint 0, but lets pretend it is for now
-    if(
-      // make sure the tile we're moving to is walkable
-      type(getTile(newX, newY, newZ)).walkable === true
-    ) {
-      world.player.x += deltaX;
-      world.player.y += deltaY;
-      hasChanged = true;
+    var oldX = world.player.x;
+    var oldY = world.player.y;
+    var oldZ = world.player.z;
+    var newX = oldX + deltaX;
+    var newY = oldY + deltaY;
+    var newZ = oldZ;
+
+    if(isSolid(oldX, oldY, oldZ - 1) === false) {
+      // we're falling!
+      setPlayerPosition(oldX, oldY, oldZ - 1);
+    } else {
+      if(isSolid(newX, newY, newZ) === false) {
+        if(isSolid(newX, newY, newZ - 1) === false) {
+          // stepping down
+          setPlayerPosition(newX, newY, newZ - 1);
+        } else {
+          // can move directly there so we do
+          setPlayerPosition(newX, newY, newZ);
+        }
+      } else {
+        newZ += 1;
+        if(
+          // trying to climb a one-block step
+          isSolid(newX, newY, newZ) === false &&
+          isSolid(oldX, oldY, newZ) === false
+        ) {
+          setPlayerPosition(newX, newY, newZ);
+        }
+      }
     }
   }
+
   function setPlayerPosition(x, y, z) {
     if(
       _.isNumber(x) &&
@@ -84,6 +108,9 @@ var World = (function() {
       world.player.x = x;
       world.player.y = y;
       world.player.z = z;
+      hasChanged = true;
+    } else {
+      throw new Error("Bad coordinates sent to setPlayerPosition()");
     }
   }
 
@@ -130,7 +157,7 @@ var World = (function() {
           _.isString(idData.background) &&
           _.isString(idData.color) &&
           _.isString(idData.character) &&
-          _.isBoolean(idData.walkable)
+          _.isBoolean(idData.solid)
         ) {
           world.ids[idName] = idData;
         } else {
@@ -142,7 +169,10 @@ var World = (function() {
       world.grid = [];
 
       _.map(data.grid, function(level, z) {
-        if(_.isArray(level) && z < world.size.z) {
+        if(_.isArray(level)) {
+          if(z >= world.grid.z) {
+            return undefined;
+          }
 
           world.grid[z] = _.map(level, function(row, y) {
             if(y < world.size.y) {
