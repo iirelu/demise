@@ -34,36 +34,49 @@ var World = (function() {
 
   function getTile(x, y, z) {
     if(
-      _.isNumber(x) &&
-      _.isNumber(y) &&
-      _.isNumber(z)
+        _.isNumber(x) &&
+        _.isNumber(y) &&
+        _.isNumber(z)
     ) {
-      if(
-        x < 0 || y < 0 || z < 0 ||
-        x >= world.size.x || y >= world.size.y ||
-        world.grid[z] === undefined ||
-        world.grid[z][y] === undefined ||
-        world.grid[z][y][x] === undefined
-      ) {
-        return "default";
+      if(z >= 0) {
+        if(
+            x >= 0 && y >= 0 &&
+            x < world.size.x && y < world.size.y
+        ) {
+          if(
+              _.isArray(world.grid[z]) &&
+              _.isArray(world.grid[z][y]) &&
+              _.isString(world.grid[z][y][x])
+          ) {
+            // okay, got to the meat of stuff, lets go
+            return getData(world.grid[z][y][x]);
+          } else {
+            // well the coordinates arent in world.grid
+            return getData(world.defaults.unknown);
+          }
+        } else {
+          // coordinates are outside the world size
+          return getData(world.defaults.outside);
+        }
       } else {
-        return world.grid[z][y][x];
+        // coordinates are under the grid
+        return getData(world.defaults.bedrock);
       }
     } else {
       throw new Error("Bad coordinates sent to getTile()");
     }
   }
 
-  function type(tile) {
-    if(_.has(world.ids, tile)) {
+  function getData(tile) {
+    if(world.ids[tile] !== undefined) {
       return world.ids[tile];
     } else {
-      return world.ids["default"];
+      return world.ids[world.defaults.unknown];
     }
   }
 
   function isSolid(x, y, z) {
-    return type(getTile(x, y, z)).solid;
+    return getTile(x, y, z).solid;
   }
 
   function movePlayer(deltaX, deltaY) {
@@ -89,9 +102,9 @@ var World = (function() {
       } else {
         newZ += 1;
         if(
-          // trying to climb a one-block step
-          isSolid(newX, newY, newZ) === false &&
-          isSolid(oldX, oldY, newZ) === false
+            // trying to climb a one-block step
+            isSolid(newX, newY, newZ) === false &&
+            isSolid(oldX, oldY, newZ) === false
         ) {
           setPlayerPosition(newX, newY, newZ);
         }
@@ -101,9 +114,9 @@ var World = (function() {
 
   function setPlayerPosition(x, y, z) {
     if(
-      _.isNumber(x) &&
-      _.isNumber(y) &&
-      _.isNumber(z)
+        _.isNumber(x) &&
+        _.isNumber(y) &&
+        _.isNumber(z)
     ) {
       world.player.x = x;
       world.player.y = y;
@@ -138,7 +151,11 @@ var World = (function() {
       _.isString(data.player.name) &&
       _.isObject(data.player.style) &&
       _.isString(data.player.style.character) &&
-      _.isString(data.player.style.color)
+      _.isString(data.player.style.color) &&
+      // check other stuff
+      _.isArray(data.grid) &&
+      _.isObject(data.mapping) &&
+      _.isObject(data.defaults)
     ) {
       world.size.x = data.size.x;
       world.size.y = data.size.y;
@@ -151,15 +168,18 @@ var World = (function() {
       world.player.style.color = data.player.style.color;
       world.player.style.character = data.player.style.character;
 
+      world.mapping = data.mapping;
+      world.defaults = data.defaults;
+
       _.map(data.ids, function(idData, idName) {
         if(
-          _.isString(idData.name) &&
-          _.isString(idData.background) &&
-          _.isString(idData.color) &&
-          _.isString(idData.character) &&
-          _.isBoolean(idData.solid)
+            _.isString(idData.background) &&
+            _.isString(idData.color) &&
+            _.isString(idData.character) &&
+            _.isBoolean(idData.solid)
         ) {
           world.ids[idName] = idData;
+          world.ids[idName].name = idName;
         } else {
           console.log(idData);
           throw new Error("motherFUCKER");
@@ -173,17 +193,18 @@ var World = (function() {
           if(z >= world.grid.z) {
             return undefined;
           }
-
           world.grid[z] = _.map(level, function(row, y) {
             if(y < world.size.y) {
               if(_.isString(row)) {
-
                 return _.map(row, function(column, x) {
                   if(x < world.size.x) {
-                    return column;
+                    if(world.mapping[column] !== undefined) {
+                      return world.mapping[column];
+                    } else {
+                      throw new Error("Unknown mapping for " + column);
+                    }
                   }
                 });
-
               } else if(_.isArray(row)) {
                 // ah fuck it this is complicated and i dont need it yet
                 throw new Error("im a lazy shit");
@@ -192,11 +213,9 @@ var World = (function() {
               }
             }
           });
-
         } else {
           throw new Error("Bad world grid data.");
         }
-
       });
 
       console.log(world);
@@ -225,10 +244,9 @@ var World = (function() {
         var gridZ = world.player.z;
 
         var curTile = getTile(gridX, gridY, gridZ);
-        var curType = type(curTile);
 
         var newElem = document.createElement("span");
-        newElem.classList.add("type-" + curType.name);
+        newElem.classList.add("type-" + curTile.name);
         if(x == 15 && y == 8) {
           newElem.id = "player";
         }
